@@ -14,6 +14,8 @@ WORKDIR /myapp
 
 ADD package.json pnpm-lock.yaml ./
 
+
+RUN apt-get update && apt-get install -y curl
 RUN curl -sL https://unpkg.com/@pnpm/self-installer | node
 RUN pnpm install --production=false
 
@@ -23,7 +25,11 @@ FROM base as production-deps
 WORKDIR /myapp
 
 COPY --from=deps /myapp/node_modules /myapp/node_modules
+
 ADD package.json pnpm-lock.yaml ./
+
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://unpkg.com/@pnpm/self-installer | node
 RUN pnpm prune --production
 
 # Build the app
@@ -37,6 +43,10 @@ ADD prisma .
 RUN npx prisma generate
 
 ADD . .
+
+
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://unpkg.com/@pnpm/self-installer | node
 RUN pnpm run build
 
 # Finally, build the production image with minimal footprint
